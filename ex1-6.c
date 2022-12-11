@@ -2,18 +2,7 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 
-int main (int argc, char* args[])
-{
-    /* INICIALIZACAO */
-    SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window* win = SDL_CreateWindow("Contando o Tempo",
-                         SDL_WINDOWPOS_UNDEFINED,
-                         SDL_WINDOWPOS_UNDEFINED,
-                         800, 600, SDL_WINDOW_SHOWN
-                      );
-    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, 0);
-
-    int AUX_WaitEventTimeoutCount (SDL_Event* evt, Uint32* ms){
+ int AUX_WaitEventTimeoutCount (SDL_Event* evt, int* ms){
         Uint32 antes = SDL_GetTicks();
         int isevt = SDL_WaitEventTimeout(evt, *ms);
         int passedTime = (SDL_GetTicks() - antes);
@@ -25,6 +14,17 @@ int main (int argc, char* args[])
         
         return isevt;
      }
+
+int main (int argc, char* args[])
+{
+    /* INICIALIZACAO */
+    SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_Window* win = SDL_CreateWindow("Contando o Tempo",
+                         SDL_WINDOWPOS_UNDEFINED,
+                         SDL_WINDOWPOS_UNDEFINED,
+                         800, 600, SDL_WINDOW_SHOWN
+                      );
+    SDL_Renderer* ren = SDL_CreateRenderer(win, -1, 0);
 
     /* EXECUÇÃO */
     struct square {
@@ -55,6 +55,7 @@ int main (int argc, char* args[])
     vermelho.ordem = -1;
     clock_t start, end;
     double cpu_time_used;
+
     while (!isQuit) {
         
         SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0x00);
@@ -74,24 +75,14 @@ int main (int argc, char* args[])
         if (isevt) {
             if (evt.type == SDL_KEYDOWN) {
                 switch (evt.key.keysym.sym) {
-                    // case SDLK_UP:
-                    //     r.y -= 5;
-                    //     break;
-                    // case SDLK_DOWN:
-                    //     r.y += 5;
-                    //     break;
-                    // case SDLK_LEFT:
-                    //     r.x -= 5;
-                    //     break;
                     case SDLK_RIGHT:
                         azul.r.x += 5;
                         break;
                 }
             }
-        } else if((799 - (xTime+5)) >= 0 && (595 - (yTime + 5)) >= 0) {
-            espera = 500;
-            vermelho.r.x += 50;
-            // rTime.y += 2;
+        } else if((799 - (vermelho.r.x+5)) >= 0) {
+            espera = 100;
+            vermelho.r.x += 5;
         }
         if(evt.type == SDL_MOUSEMOTION)
         {
@@ -101,9 +92,6 @@ int main (int argc, char* args[])
             if(((x-5) > -1) && (799 - (x+5)) >= 0) {
                 x1 = x;
             }
-            // if(((y-5) > -1) && (595 - (y + 5)) >= 0) {
-            //     y1 = y;
-            // }
             SDL_Rect square = { x1,60, 30,30 };  
             preto.r = square;
         }
@@ -128,10 +116,13 @@ int main (int argc, char* args[])
             SDL_Log("Vermelho %d", vermelho.ordem);
             if(azul.ordem == 1){
                 SDL_Log("Azul Ganhou");
+                SDL_ShowSimpleMessageBox(0, "Ganhador", "Azul Ganhou", NULL);
             }else if(preto.ordem == 1){
                 SDL_Log("Preto ganhou");
+                SDL_ShowSimpleMessageBox(0, "Ganhador", "Preto ganhou", NULL);
             }else {
                 SDL_Log("Vermelho ganhou");
+                SDL_ShowSimpleMessageBox(0, "Ganhador", "Vermelho ganhou", NULL);
             }
             azul.r = r;
             azul.ordem = -1;
@@ -143,9 +134,10 @@ int main (int argc, char* args[])
             preto.ordem = -1;
             preto.colidiu = false;
             contadoDeOrdem = 0;
-
-
         }
+
+
+
         if(evt.type == SDL_WINDOWEVENT) {
             if(evt.window.event == SDL_WINDOWEVENT_CLOSE){
                 isQuit = true;
